@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 type Task = {
   completed: boolean;
@@ -89,8 +89,8 @@ function Timer({ onComplete }: { onComplete: () => void }) {
           <button
             key={m}
             className={`px-3 py-1 rounded-full text-sm transition-colors ${mode === m
-                ? "bg-white/20 text-white"
-                : "text-white/50 hover:text-white/70"
+              ? "bg-white/20 text-white"
+              : "text-white/50 hover:text-white/70"
               }`}
             onClick={() => switchMode(m)}
           >
@@ -130,10 +130,10 @@ function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   function onSaveTask() {
+    if (!input.trim()) return;
     setTasks([
       ...tasks,
-      { completed: false, id: crypto.randomUUID(), title: input },
-
+      { completed: false, id: crypto.randomUUID(), title: input.trim() },
     ]);
     setInput("");
   }
@@ -150,45 +150,74 @@ function Tasks() {
     setTasks(tasks.filter((task) => task.id !== id));
   }
 
-  function deleteTask({ id }: Task) {
-    setTasks(
-      tasks.filter((task) => task.id !== id)
-    );
-  }
-
   return (
     <>
-      <div>
+      <div className="flex gap-3 w-full mb-6">
         <input
-          className="p-2 border-1"
+          className="flex-1 p-4 rounded-xl bg-slate-800 text-slate-100 border border-slate-700 focus:outline-none focus:border-slate-500 shadow-inner transition-all text-lg placeholder:text-slate-500"
           type="text"
           value={input}
           onChange={(event) => setInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              onSaveTask();
+            }
+          }}
+          placeholder="Digite suas tasks..."
         />
 
-        <button className="rounded p-2 bg-black" onClick={onSaveTask}>
-          Save
+        <button
+          className="rounded-xl px-8 py-4 bg-white text-slate-900 font-bold hover:bg-slate-200 transition-colors shadow-sm text-lg"
+          onClick={onSaveTask}
+        >
+          Add
         </button>
       </div>
 
-      <ul>
+      <ul className="flex flex-col gap-3 w-full">
         {tasks.map((task) => {
           return (
             <li
-              className={task.completed ? "line-through" : ""}
+              className={`group flex items-center justify-between p-4 bg-slate-800 rounded-xl cursor-pointer transition-all hover:bg-slate-700 border border-slate-700/50 shadow-sm ${task.completed ? "opacity-60 bg-slate-800/50" : ""
+                }`}
               key={task.id}
               onClick={() => completeTask(task)}
             >
-              {task.title} {String(task.completed)}
+              <div className="flex items-center gap-4">
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${task.completed ? "bg-green-500 border-green-500" : "border-slate-500 group-hover:border-white"
+                  }`}>
+                  {task.completed && (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  )}
+                </div>
+                <span className={`text-lg transition-all ${task.completed ? "line-through text-slate-500" : "text-slate-200"
+                  }`}>
+                  {task.title}
+                </span>
+              </div>
+
+              <button
+                className="text-slate-500 hover:text-red-400 p-2 transition-all opacity-0 group-hover:opacity-100 rounded-lg hover:bg-slate-600/50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteTask(task);
+                }}
+                aria-label="Delete task"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+              </button>
             </li>
           );
         })}
       </ul>
 
       {tasks.length === 0 && (
-        <p className="text-white/30 text-center py-8">No tasks yet</p>
+        <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mb-4 opacity-50"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="m9 15 2 2 4-4" /></svg>
+          <p className="text-lg">Sem tasks.</p>
+        </div>
       )}
-    </div >
+    </>
   );
 }
 
@@ -246,13 +275,18 @@ function PomodoroTimer() {
 }
 
 export default function Pomodoro() {
-  const [key, setKey] = useState(0);
-
   return (
-    <div className="bg-slate-900 h-screen w-screen text-white">
-      <h1>Tasks</h1>
+    <div className="bg-slate-900 min-h-screen w-screen text-white flex flex-col items-center p-8 gap-12 overflow-y-auto">
+      <div className="w-full flex justify-center mt-8">
+        <PomodoroTimer />
+      </div>
 
-      <Tasks />
+      <div className="w-full flex flex-col items-center">
+        <h1 className="text-4xl font-bold mb-8">Tasks</h1>
+        <div className="w-full max-w-sm">
+          <Tasks />
+        </div>
+      </div>
     </div>
   );
 }
