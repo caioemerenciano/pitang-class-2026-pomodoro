@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PomodoroRouteImport } from './routes/pomodoro'
 import { Route as AboutRouteImport } from './routes/About'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
@@ -19,6 +20,11 @@ import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as DashboardProductsIndexRouteImport } from './routes/dashboard/products/index'
 
+const PomodoroRoute = PomodoroRouteImport.update({
+  id: '/pomodoro',
+  path: '/pomodoro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/About',
   path: '/About',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/About': typeof AboutRoute
+  '/pomodoro': typeof PomodoroRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/product/$id': typeof ProductIdRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/About': typeof AboutRoute
+  '/pomodoro': typeof PomodoroRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/product/$id': typeof ProductIdRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/About': typeof AboutRoute
+  '/pomodoro': typeof PomodoroRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/product/$id': typeof ProductIdRoute
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/About'
+    | '/pomodoro'
     | '/login'
     | '/register'
     | '/product/$id'
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/About'
+    | '/pomodoro'
     | '/login'
     | '/register'
     | '/product/$id'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/dashboard'
     | '/About'
+    | '/pomodoro'
     | '/_auth/login'
     | '/_auth/register'
     | '/product/$id'
@@ -133,11 +145,19 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  PomodoroRoute: typeof PomodoroRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pomodoro': {
+      id: '/pomodoro'
+      path: '/pomodoro'
+      fullPath: '/pomodoro'
+      preLoaderRoute: typeof PomodoroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/About': {
       id: '/About'
       path: '/About'
@@ -237,6 +257,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  PomodoroRoute: PomodoroRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport

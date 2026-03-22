@@ -27,6 +27,11 @@ export function useAuth() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          document.cookie = "@pitang/accessToken=; path=/; Max-Age=0";
+          navigate({ to: "/login" });
+          return toast.error("Sua sessão expirou. Por favor, faça login novamente.");
+        }
         return toast.error("Something went wrong");
       }
 
